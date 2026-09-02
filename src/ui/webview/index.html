@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{cspSource}} 'unsafe-inline'; script-src {{cspSource}} 'unsafe-inline'; font-src {{cspSource}};" />
+  <title>FreePilot AI Chat</title>
+  <link rel="stylesheet" href="{{cssUri}}" />
+</head>
+<body>
+  <!-- Header Bar -->
+  <div class="chat-header">
+    <div class="provider-badge" id="provider-badge" title="Click to switch AI model or provider">
+      ⚡ Gemini 2.0 Flash
+    </div>
+    <div class="header-actions">
+      <button class="icon-button" id="btn-oauth-login" title="1-Click Browser Connect / OAuth">⚡ 1-Click</button>
+      <button class="icon-button" id="btn-switch-model" title="Switch Model / Provider">🔄</button>
+      <button class="icon-button" id="btn-set-key" title="Set Free API Key">🔑</button>
+      <button class="icon-button" id="btn-clear-chat" title="Clear Chat">🗑️</button>
+    </div>
+  </div>
+
+  <!-- Messages List -->
+  <div class="chat-messages" id="chat-messages">
+    <div class="welcome-card">
+      <div class="welcome-title">
+        <span>⚡ FreePilot AI Assistant</span>
+      </div>
+      <p class="welcome-subtitle">
+        100% Free AI Copilot powered by Google Gemini, DeepSeek, SiliconFlow, Zhipu GLM, Qwen, Groq, Ollama & OpenRouter.
+      </p>
+      <div class="free-pills">
+        <span class="free-pill">Gemini 2.0 Flash</span>
+        <span class="free-pill">DeepSeek R1/V3</span>
+        <span class="free-pill">GLM-4-Flash</span>
+        <span class="free-pill">Qwen 2.5 Coder</span>
+        <span class="free-pill">Llama 3.3 70B</span>
+        <span class="free-pill">Ollama Offline</span>
+      </div>
+      <div class="quick-prompts-grid">
+        <button class="quick-prompt-btn" data-action="explain">⚡ Explain Code</button>
+        <button class="quick-prompt-btn" data-action="fix">🛠️ Fix Bugs & Issues</button>
+        <button class="quick-prompt-btn" data-action="refactor">🔄 Refactor / Optimize</button>
+        <button class="quick-prompt-btn" data-action="test">🧪 Generate Unit Tests</button>
+        <button class="quick-prompt-btn" data-action="docs">📝 Add Docstrings</button>
+        <button class="quick-prompt-btn" data-action="security">🔒 Security Audit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Bar -->
+  <div class="context-bar">
+    <div class="context-chip" id="active-file-chip" style="display: none;">📄 No File</div>
+    <div class="context-chip" id="active-selection-chip" style="display: none;">✂️ Selection</div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input-container">
+    <div class="input-box-wrapper">
+      <textarea
+        id="prompt-input"
+        placeholder="Ask FreePilot anything, or type code instructions... (Enter to send, Shift+Enter for new line)"
+        rows="2"
+      ></textarea>
+      <div class="input-controls">
+        <div style="font-size: 10px; opacity: 0.6;">Ctrl+Alt+C to toggle</div>
+        <button class="send-button" id="send-button">➤ Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{jsUri}}"></script>
+</body>
+</html>

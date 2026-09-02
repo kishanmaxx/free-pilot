@@ -1,0 +1,306 @@
+{
+  "name": "free-pilot",
+  "displayName": "FreePilot - Free AI Copilot & Chat",
+  "description": "100% Free AI Copilot & Chat Assistant powered by Gemini, DeepSeek, SiliconFlow, Zhipu GLM, Qwen, Groq, Ollama, OpenRouter & Mistral.",
+  "version": "0.1.0",
+  "publisher": "freepilot",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Programming Languages",
+    "Snippets",
+    "Education"
+  ],
+  "keywords": [
+    "copilot",
+    "ai",
+    "free",
+    "deepseek",
+    "gemini",
+    "qwen",
+    "siliconflow",
+    "zhipu",
+    "groq",
+    "ollama",
+    "code-completion",
+    "chat"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "freepilot-sidebar-view",
+          "title": "FreePilot AI",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "freepilot-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "freepilot.chatView",
+          "name": "FreePilot Chat",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "freepilot.openChat",
+        "title": "FreePilot: Open Chat Assistant",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.explainCode",
+        "title": "FreePilot: Explain Selected Code",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.fixCode",
+        "title": "FreePilot: Fix Bugs & Errors in Selection",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.refactorCode",
+        "title": "FreePilot: Refactor & Optimize Code",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.generateTests",
+        "title": "FreePilot: Generate Unit Tests",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.addDocs",
+        "title": "FreePilot: Add Documentation & Comments",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.securityAudit",
+        "title": "FreePilot: Security & Vulnerability Audit",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.completeCode",
+        "title": "FreePilot: Complete Code at Cursor",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.switchModel",
+        "title": "FreePilot: Switch AI Provider & Model",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.oauthLogin",
+        "title": "FreePilot: 1-Click Browser Connect / OAuth",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.setApiKey",
+        "title": "FreePilot: Set Provider API Key",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.toggleInlineCompletions",
+        "title": "FreePilot: Toggle Inline Completions (Ghost Text)",
+        "category": "FreePilot"
+      },
+      {
+        "command": "freepilot.clearChat",
+        "title": "FreePilot: Clear Chat History",
+        "category": "FreePilot"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "group": "FreePilot@1",
+          "command": "freepilot.explainCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "group": "FreePilot@2",
+          "command": "freepilot.fixCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "group": "FreePilot@3",
+          "command": "freepilot.refactorCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "group": "FreePilot@4",
+          "command": "freepilot.generateTests",
+          "when": "editorHasSelection"
+        },
+        {
+          "group": "FreePilot@5",
+          "command": "freepilot.addDocs",
+          "when": "editorHasSelection"
+        },
+        {
+          "group": "FreePilot@6",
+          "command": "freepilot.securityAudit",
+          "when": "editorHasSelection"
+        },
+        {
+          "group": "FreePilot@7",
+          "command": "freepilot.completeCode"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "freepilot.clearChat",
+          "when": "view == freepilot.chatView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "freepilot.switchModel",
+          "when": "view == freepilot.chatView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "freepilot.setApiKey",
+          "when": "view == freepilot.chatView",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "freepilot.openChat",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c"
+      },
+      {
+        "command": "freepilot.completeCode",
+        "key": "ctrl+alt+space",
+        "mac": "cmd+alt+space",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "freepilot.explainCode",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "freepilot.fixCode",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f",
+        "when": "editorHasSelection"
+      }
+    ],
+    "configuration": {
+      "title": "FreePilot",
+      "properties": {
+        "freepilot.provider": {
+          "type": "string",
+          "default": "gemini",
+          "enum": [
+            "gemini",
+            "groq",
+            "siliconflow",
+            "zhipu",
+            "deepseek",
+            "dashscope",
+            "openrouter",
+            "mistral",
+            "cerebras",
+            "ollama",
+            "custom"
+          ],
+          "enumDescriptions": [
+            "Google Gemini (Free tier: Gemini 2.0 Flash / 1.5 Flash)",
+            "Groq Cloud (Ultra-fast free tier: Llama 3.3 70B / Mixtral)",
+            "SiliconFlow 硅基流动 (Free tier: DeepSeek R1/V3, Qwen 2.5 Coder, GLM-4)",
+            "Zhipu AI 智谱清言 (Free GLM-4-Flash forever)",
+            "DeepSeek Official API (DeepSeek V3 / R1)",
+            "Alibaba DashScope 通义千问 (Qwen 2.5 Coder / Turbo / Plus)",
+            "OpenRouter (All :free models - DeepSeek R1, Qwen Coder, Llama 3.3)",
+            "Mistral AI (Codestral & Mistral Small free tier)",
+            "Cerebras Cloud (Blazing fast free inference)",
+            "Local Ollama (100% free, private & offline at localhost:11434)",
+            "Custom OpenAI-Compatible API (LM Studio, LocalAI, vLLM, FastChat)"
+          ],
+          "description": "Active AI backend provider for FreePilot."
+        },
+        "freepilot.model": {
+          "type": "string",
+          "default": "gemini-2.0-flash",
+          "description": "Active model identifier for the selected provider."
+        },
+        "freepilot.enableInlineCompletions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time inline ghost-text code completions (GitHub Copilot style)."
+        },
+        "freepilot.inlineCompletionDelayMs": {
+          "type": "integer",
+          "default": 350,
+          "minimum": 100,
+          "maximum": 2000,
+          "description": "Debounce delay in milliseconds before requesting inline code completions."
+        },
+        "freepilot.maxCompletionTokens": {
+          "type": "integer",
+          "default": 128,
+          "minimum": 16,
+          "maximum": 1024,
+          "description": "Maximum tokens to generate for inline code completions."
+        },
+        "freepilot.maxChatTokens": {
+          "type": "integer",
+          "default": 4096,
+          "minimum": 512,
+          "maximum": 16384,
+          "description": "Maximum tokens to generate for chat responses."
+        },
+        "freepilot.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Sampling temperature (lower = more deterministic for code)."
+        },
+        "freepilot.ollamaEndpoint": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Endpoint URL for local Ollama server."
+        },
+        "freepilot.customEndpoint": {
+          "type": "string",
+          "default": "http://localhost:1234/v1",
+          "description": "Custom OpenAI-compatible API base URL (e.g., LM Studio, vLLM)."
+        },
+        "freepilot.streamChatResponses": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stream chat responses token-by-token in real time."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "bundle": "node esbuild.js",
+    "bundle:watch": "node esbuild.js --watch",
+    "package": "node esbuild.js --production && npx @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
+  }
+}

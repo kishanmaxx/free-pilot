@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreePilot AI - 1-Click VS Code Auth Portal</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .provider-tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .form-group {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus {
+      border-color: var(--accent);
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn:hover {
+      background: #0369a1;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      margin-top: 10px;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .footer-help {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .footer-help a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .footer-help a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo">⚡</div>
+      <h1>FreePilot 1-Click Connect</h1>
+      <p>Connect your free AI model directly to VS Code without manual configuration.</p>
+      <div class="provider-tag" id="providerTag">Provider: Google Gemini</div>
+    </div>
+
+    <div class="form-group">
+      <label for="apiKeyInput" id="keyLabel">API Key / Auth Token</label>
+      <input type="password" id="apiKeyInput" placeholder="Paste your free API key here..." />
+    </div>
+
+    <button class="btn" id="connectBtn">🚀 Connect to VS Code in 1-Click</button>
+    <a href="#" target="_blank" class="btn btn-secondary" id="getKeyBtn">🔑 Get Free Key from Provider</a>
+
+    <div class="footer-help">
+      <span>Redirects automatically to your VS Code instance via custom URI handler.</span>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const provider = params.get('provider') || 'gemini';
+    const callbackUri = params.get('callback') || 'vscode://freepilot.free-pilot/auth-callback';
+
+    const providerLinks = {
+      gemini: { name: 'Google Gemini', url: 'https://aistudio.google.com/app/apikey' },
+      siliconflow: { name: 'SiliconFlow (硅基流动)', url: 'https://cloud.siliconflow.cn/account/ak' },
+      zhipu: { name: 'Zhipu AI (智谱清言)', url: 'https://open.bigmodel.cn/usercenter/apikeys' },
+      dashscope: { name: 'Alibaba DashScope (通义千问)', url: 'https://dashscope.console.aliyun.com/apiKey' },
+      deepseek: { name: 'DeepSeek Official', url: 'https://platform.deepseek.com/api_keys' },
+      groq: { name: 'Groq Cloud', url: 'https://console.groq.com/keys' },
+      cerebras: { name: 'Cerebras Cloud', url: 'https://cloud.cerebras.ai/' },
+      openrouter: { name: 'OpenRouter Free', url: 'https://openrouter.ai/keys' },
+      mistral: { name: 'Mistral AI', url: 'https://console.mistral.ai/api-keys/' }
+    };
+
+    const info = providerLinks[provider] || providerLinks.gemini;
+    document.getElementById('providerTag').textContent = `Provider: ${info.name}`;
+    document.getElementById('getKeyBtn').href = info.url;
+    document.getElementById('getKeyBtn').textContent = `🔑 Get Free ${info.name} Key`;
+
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      if (!key) {
+        alert('Please enter or paste your API key first.');
+        return;
+      }
+
+      const decodedCallback = decodeURIComponent(callbackUri);
+      const redirectUrl = `${decodedCallback}?provider=${encodeURIComponent(provider)}&key=${encodeURIComponent(key)}`;
+      
+      // Redirect back to VS Code
+      window.location.href = redirectUrl;
+    });
+  </script>
+</body>
+</html>
