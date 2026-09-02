@@ -10,13 +10,27 @@ import { PromptTemplates } from '../utils/promptTemplates';
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'freepilot.chatView';
 
+  private static readonly MAX_HISTORY_MESSAGES = 20;
+  private static readonly HISTORY_STORAGE_KEY = 'freepilot.chatHistory';
+
   private view?: vscode.WebviewView;
   private configManager = ConfigManager.getInstance();
   private providerManager = ProviderManager.getInstance();
   private conversationHistory: ChatMessage[] = [];
   private abortController?: AbortController;
+  private disposables: vscode.Disposable[] = [];
+  private extensionContext?: vscode.ExtensionContext;
 
   constructor(private readonly extensionUri: vscode.Uri) {}
+
+  public setExtensionContext(context: vscode.ExtensionContext): void {
+    this.extensionContext = context;
+    // Restore persisted chat history
+    const saved = context.globalState.get<ChatMessage[]>(ChatViewProvider.HISTORY_STORAGE_KEY);
+    if (saved && Array.isArray(saved)) {
+      this.conversationHistory = saved;
+    }
+  }
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -41,9 +55,21 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     this.sendCurrentContext();
     this.sendConfigUpdate();
 
-    // Listen for active editor changes
-    vscode.window.onDidChangeActiveTextEditor(() => this.sendCurrentContext());
-    vscode.window.onDidChangeTextEditorSelection(() => this.sendCurrentContext());
+    // Dispose previous listeners to prevent memory leaks on sidebar toggle
+    this.disposables.forEach(d => d.dispose());
+    this.disposables = [];
+
+    // Listen for active editor changes (tracked for disposal)
+    this.disposables.push(
+      vscode.window.onDidChangeActiveTextEditor(() => this.sendCurrentContext()),
+      vscode.window.onDidChangeTextEditorSelection(() => this.sendCurrentContext())
+    );
+
+    // Clean up on webview dispose
+    webviewView.onDidDispose(() => {
+      this.disposables.forEach(d => d.dispose());
+      this.disposables = [];
+    });
   }
 
   private async handleWebviewMessage(message: any): Promise<void> {
@@ -51,6 +77,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       case 'webviewReady': {
         this.sendCurrentContext();
         this.sendConfigUpdate();
+        this.sendChatHistory();
         break;
       }
 
@@ -102,6 +129,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
       case 'clearChat': {
         this.conversationHistory = [];
+        this.persistHistory();
         break;
       }
 
@@ -146,6 +174,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     this.conversationHistory.push({ role: 'user', content: enrichedInput });
 
+    // Sliding window: keep only the last N messages to avoid token overflow
+    this.trimConversationHistory();
+
     try {
       const provider = this.providerManager.getProvider();
       const hasKey = await provider.hasValidApiKey();
@@ -157,10 +188,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         );
       }
 
+      // Only send non-system messages to the provider (system prompt is injected separately)
+      const messagesToSend = this.conversationHistory.filter(m => m.role !== 'system');
+
       let accumulated = '';
       const response = await provider.chat(
         {
-          messages: this.conversationHistory,
+          messages: messagesToSend,
           maxTokens: this.configManager.getConfig().maxChatTokens,
           temperature: this.configManager.getConfig().temperature
         },
@@ -176,6 +210,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       );
 
       this.conversationHistory.push({ role: 'assistant', content: response || accumulated });
+      this.persistHistory();
 
       this.view?.webview.postMessage({
         type: 'streamEnd',
@@ -309,5 +344,48 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     html = html.replace(/\{\{jsUri\}\}/g, jsUri.toString());
 
     return html;
+  }
+
+  /**
+   * Trim conversation history to prevent token overflow.
+   * Keeps only the last MAX_HISTORY_MESSAGES messages.
+   */
+  private trimConversationHistory(): void {
+    const max = ChatViewProvider.MAX_HISTORY_MESSAGES;
+    if (this.conversationHistory.length > max) {
+      this.conversationHistory = this.conversationHistory.slice(-max);
+    }
+  }
+
+  /**
+   * Persist conversation history to VS Code globalState for cross-session recovery.
+   */
+  private persistHistory(): void {
+    if (this.extensionContext) {
+      this.extensionContext.globalState.update(
+        ChatViewProvider.HISTORY_STORAGE_KEY,
+        this.conversationHistory
+      );
+    }
+  }
+
+  /**
+   * Clear conversation history (callable from commands)
+   */
+  public clearHistory(): void {
+    this.conversationHistory = [];
+    this.persistHistory();
+    this.view?.webview.postMessage({ type: 'clearChat' });
+  }
+
+  /**
+   * Send persisted chat history to the webview UI
+   */
+  public sendChatHistory(): void {
+    if (!this.view || this.conversationHistory.length === 0) return;
+    this.view.webview.postMessage({
+      type: 'loadHistory',
+      messages: this.conversationHistory
+    });
   }
 }

@@ -14,7 +14,7 @@ export class GeminiProvider extends BaseProvider {
 
     const config = this.configManager.getConfig();
     const model = config.model.startsWith('gemini') ? config.model : 'gemini-2.0-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const prompt = PromptTemplates.buildFimPrompt(
       request.prefix,
@@ -43,14 +43,16 @@ export class GeminiProvider extends BaseProvider {
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey
+      },
       body: JSON.stringify(body),
       signal
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Gemini API error (${response.status}): ${errText}`);
+      await this.parseHttpError(response, 'Gemini', 'completion');
     }
 
     const data = (await response.json()) as any;
@@ -71,11 +73,13 @@ export class GeminiProvider extends BaseProvider {
     const config = this.configManager.getConfig();
     const model = config.model.startsWith('gemini') ? config.model : 'gemini-2.0-flash';
 
-    // Convert messages to Gemini format
-    const contents = request.messages.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
+    // Convert messages to Gemini format, filtering out system role (handled via systemInstruction)
+    const contents = request.messages
+      .filter(m => m.role !== 'system')
+      .map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
 
     const systemInstruction = request.systemPrompt || PromptTemplates.SYSTEM_CHAT;
 
@@ -90,33 +94,36 @@ export class GeminiProvider extends BaseProvider {
       }
     };
 
+    const authHeaders = {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
+    };
+
     if (config.streamChatResponses && onChunk) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(body),
         signal
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Gemini streaming error (${response.status}): ${errText}`);
+        await this.parseHttpError(response, 'Gemini', 'streaming');
       }
 
       return this.parseGeminiSseStream(response, onChunk, signal);
     } else {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(body),
         signal
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Gemini error (${response.status}): ${errText}`);
+        await this.parseHttpError(response, 'Gemini', 'chat');
       }
 
       const data = (await response.json()) as any;

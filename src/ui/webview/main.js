@@ -253,6 +253,26 @@
         currentAssistantBubble = appendMessage('assistant', '');
         break;
       }
+
+      case 'loadHistory': {
+        if (message.messages && message.messages.length > 0) {
+          const welcome = document.querySelector('.welcome-card');
+          if (welcome) welcome.style.display = 'none';
+          messagesContainer.innerHTML = '';
+          message.messages.forEach((msg) => {
+            if (msg.role === 'user' || msg.role === 'assistant') {
+              appendMessage(msg.role, msg.content);
+            }
+          });
+          scrollToBottom();
+        }
+        break;
+      }
+
+      case 'clearChat': {
+        clearChatUI();
+        break;
+      }
     }
   });
 
@@ -286,9 +306,16 @@
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
       .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      .replace(/^\s*-\s+(.*$)/gim, '<li>$1</li>')
-      .replace(/(<li>.*<\/li>)/gim, '<ul>$1</ul>')
-      .replace(/\n\n/g, '<br/><br/>');
+      .replace(/^\s*\d+\.\s+(.*$)/gim, '<li>$1</li>')
+      .replace(/^\s*-\s+(.*$)/gim, '<li>$1</li>');
+
+    // Group consecutive <li> into a single <ul>
+    processed = processed.replace(
+      /(<li>[\s\S]*?<\/li>)(\s*<li>[\s\S]*?<\/li>)*/g,
+      (match) => `<ul>${match}</ul>`
+    );
+
+    processed = processed.replace(/\n\n/g, '<br/><br/>');
 
     return processed;
   }

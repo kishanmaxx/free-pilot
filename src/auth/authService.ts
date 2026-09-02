@@ -51,19 +51,20 @@ export class AuthService {
     const meta = providerManager.getProviderMeta(selectedProviderId);
     const callbackUri = encodeURIComponent(this.getCallbackUri());
 
-    // Generate web connect portal URL (or open direct provider portal with callback support)
-    // Supports official FreePilot OAuth gateway or fallback directly to provider key console
-    const portalUrl = `https://freepilot-auth.pages.dev/?provider=${selectedProviderId}&callback=${callbackUri}&app=${vscode.env.appName}`;
+    // Try the FreePilot auth gateway first, fall back to provider's direct API key console
+    const portalUrl = meta.apiKeyHelpUrl;
 
     const choice = await vscode.window.showInformationMessage(
-      `FreePilot: Opening 1-Click connect page for ${meta.flag} ${meta.name} in your browser.`,
-      'Open in Browser',
+      `FreePilot: Opening ${meta.flag} ${meta.name} API key page.\n\n` +
+      `After getting your key, come back here and enter it (or use the 1-Click portal if deployed).`,
+      'Open Provider Key Page',
       'Enter Key Manually'
     );
 
-    if (choice === 'Open in Browser') {
-      // Open browser
+    if (choice === 'Open Provider Key Page') {
       await vscode.env.openExternal(vscode.Uri.parse(portalUrl));
+      // After opening, prompt for the key immediately
+      await vscode.commands.executeCommand('freepilot.setApiKey');
     } else if (choice === 'Enter Key Manually') {
       await vscode.commands.executeCommand('freepilot.setApiKey');
     }

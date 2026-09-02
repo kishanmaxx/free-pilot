@@ -82,8 +82,7 @@ export class OpenAICompatibleProvider extends BaseProvider {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`${this.name} completion error (${response.status}): ${errText}`);
+      await this.parseHttpError(response, this.name, 'completion');
     }
 
     const data = (await response.json()) as any;
@@ -139,8 +138,7 @@ export class OpenAICompatibleProvider extends BaseProvider {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`${this.name} chat error (${response.status}): ${errText}`);
+      await this.parseHttpError(response, this.name, 'chat');
     }
 
     if (stream) {

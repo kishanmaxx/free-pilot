@@ -12,11 +12,18 @@ interface CachedCompletion {
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
   private configManager = ConfigManager.getInstance();
   private providerManager = ProviderManager.getInstance();
-  private debounceTimer?: NodeJS.Timeout;
   private abortController?: AbortController;
   private cache: Map<string, CachedCompletion> = new Map();
   private maxCacheSize = 50;
   private cacheTtlMs = 60000; // 1 minute
+  private pendingDebounceReject?: () => void;
+
+  /** Language IDs to skip inline completions for */
+  private static readonly SKIP_LANGUAGES = new Set([
+    'plaintext', 'markdown', 'json', 'jsonc', 'xml', 'yaml', 'toml',
+    'ini', 'properties', 'csv', 'log', 'gitcommit', 'gitrebase',
+    'diff', 'scminput'
+  ]);
 
   public async provideInlineCompletionItems(
     document: vscode.TextDocument,
@@ -26,6 +33,11 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
   ): Promise<vscode.InlineCompletionList | vscode.InlineCompletionItem[] | undefined> {
     const config = this.configManager.getConfig();
     if (!config.enableInlineCompletions) {
+      return undefined;
+    }
+
+    // Skip non-code files
+    if (InlineCompletionProvider.SKIP_LANGUAGES.has(document.languageId)) {
       return undefined;
     }
 
@@ -63,12 +75,25 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
       return this.formatCompletionResult(cached.completion, position);
     }
 
-    // Wait for debounce delay
+    // Proper debounce: reject any previously pending debounce
+    if (this.pendingDebounceReject) {
+      this.pendingDebounceReject();
+      this.pendingDebounceReject = undefined;
+    }
+
     const delay = config.inlineCompletionDelayMs;
-    await new Promise<void>(resolve => {
-      if (this.debounceTimer) clearTimeout(this.debounceTimer);
-      this.debounceTimer = setTimeout(resolve, delay);
-    });
+    try {
+      await new Promise<void>((resolve, reject) => {
+        this.pendingDebounceReject = reject;
+        setTimeout(() => {
+          this.pendingDebounceReject = undefined;
+          resolve();
+        }, delay);
+      });
+    } catch {
+      // Debounce was cancelled by a newer keystroke
+      return undefined;
+    }
 
     if (token.isCancellationRequested || signal.aborted) {
       return undefined;

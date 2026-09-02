@@ -61,6 +61,25 @@ export abstract class BaseProvider implements ILLMProvider {
   }
 
   /**
+   * Parse HTTP error responses with rate-limit detection
+   */
+  protected async parseHttpError(
+    response: Response,
+    providerName: string,
+    operation: string
+  ): Promise<never> {
+    const errText = await response.text();
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('retry-after');
+      const waitMsg = retryAfter ? ` Try again in ${retryAfter} seconds.` : ' Try again in 60 seconds or switch to another free provider.';
+      throw new Error(
+        `${providerName} rate limit reached (429).${waitMsg}\n\nTip: Switch provider via the status bar or use "FreePilot: Switch AI Provider & Model".`
+      );
+    }
+    throw new Error(`${providerName} ${operation} error (${response.status}): ${errText}`);
+  }
+
+  /**
    * Helper for SSE stream parsing for OpenAI-compatible APIs
    */
   protected async parseOpenAIStream(

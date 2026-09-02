@@ -4,6 +4,11 @@
   "description": "100% Free AI Copilot & Chat Assistant powered by Gemini, DeepSeek, SiliconFlow, Zhipu GLM, Qwen, Groq, Ollama, OpenRouter & Mistral.",
   "version": "0.1.0",
   "publisher": "freepilot",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kishanmaxx/free-pilot.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },

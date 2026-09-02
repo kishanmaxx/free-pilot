@@ -37,8 +37,7 @@ export class OllamaProvider extends BaseProvider {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Ollama completion error (${response.status}): ${errText}`);
+      await this.parseHttpError(response, 'Ollama', 'completion');
     }
 
     const data = (await response.json()) as any;
@@ -82,8 +81,7 @@ export class OllamaProvider extends BaseProvider {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Ollama chat error (${response.status}): ${errText}`);
+      await this.parseHttpError(response, 'Ollama', 'chat');
     }
 
     if (stream) {
