@@ -20,11 +20,19 @@ export class ConfigManager {
 
   public getConfig(): FreePilotConfig {
     const config = vscode.workspace.getConfiguration('freepilot');
+    const completionProvider = config.get<string>('completionProvider', '');
+    const completionModel = config.get<string>('completionModel', '');
+
     return {
-      provider: config.get<ProviderId>('provider', 'gemini'),
-      model: config.get<string>('model', 'gemini-2.0-flash'),
+      provider: config.get<ProviderId>('provider', 'groq'),
+      model: config.get<string>('model', 'llama-3.3-70b-versatile'),
+      completionProvider: completionProvider ? (completionProvider as ProviderId) : undefined,
+      completionModel: completionModel ? completionModel : undefined,
       enableInlineCompletions: config.get<boolean>('enableInlineCompletions', true),
       inlineCompletionDelayMs: config.get<number>('inlineCompletionDelayMs', 350),
+      completionTimeoutMs: config.get<number>('completionTimeoutMs', 8000),
+      chatTimeoutMs: config.get<number>('chatTimeoutMs', 50000),
+      autoFailover: config.get<boolean>('autoFailover', true),
       maxCompletionTokens: config.get<number>('maxCompletionTokens', 128),
       maxChatTokens: config.get<number>('maxChatTokens', 4096),
       temperature: config.get<number>('temperature', 0.2),
@@ -54,15 +62,16 @@ export class ConfigManager {
     }
 
     const envMap: Record<ProviderId, string> = {
-      gemini: 'GEMINI_API_KEY',
       groq: 'GROQ_API_KEY',
       siliconflow: 'SILICONFLOW_API_KEY',
       zhipu: 'ZHIPU_API_KEY',
       deepseek: 'DEEPSEEK_API_KEY',
       dashscope: 'DASHSCOPE_API_KEY',
+      kimi: 'MOONSHOT_API_KEY',
       openrouter: 'OPENROUTER_API_KEY',
       mistral: 'MISTRAL_API_KEY',
       cerebras: 'CEREBRAS_API_KEY',
+      pollinations: 'POLLINATIONS_API_KEY',
       ollama: '',
       custom: 'CUSTOM_API_KEY'
     };
@@ -70,6 +79,9 @@ export class ConfigManager {
     const envVar = envMap[provider];
     if (envVar && process.env[envVar]) {
       return process.env[envVar];
+    }
+    if (provider === 'kimi' && process.env['KIMI_API_KEY']) {
+      return process.env['KIMI_API_KEY'];
     }
 
     return undefined;

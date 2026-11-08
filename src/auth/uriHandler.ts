@@ -11,7 +11,7 @@ export class FreePilotUriHandler implements vscode.UriHandler {
     console.log('FreePilot URI received:', uri.toString());
 
     // Expected format:
-    // vscode://freepilot.free-pilot/auth-callback?provider=gemini&key=AIzaSy...&model=gemini-2.0-flash
+    // vscode://freepilot.free-pilot/auth-callback?provider=groq&key=gsk_...&model=llama-3.3-70b-versatile
     // or /auth-callback?token=...&provider=siliconflow
     const path = uri.path.replace(/^\/+/, '');
 

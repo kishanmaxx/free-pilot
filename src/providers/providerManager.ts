@@ -4,11 +4,12 @@ import { CerebrasProvider } from './cerebrasProvider';
 import { CustomOpenAIProvider } from './customOpenAIProvider';
 import { DashscopeProvider } from './dashscopeProvider';
 import { DeepSeekProvider } from './deepseekProvider';
-import { GeminiProvider } from './geminiProvider';
 import { GroqProvider } from './groqProvider';
+import { KimiProvider } from './kimiProvider';
 import { MistralProvider } from './mistralProvider';
 import { OllamaProvider } from './ollamaProvider';
 import { OpenRouterProvider } from './openRouterProvider';
+import { PollinationsProvider } from './pollinationsProvider';
 import { SiliconFlowProvider } from './siliconFlowProvider';
 import { ZhipuProvider } from './zhipuProvider';
 
@@ -18,42 +19,6 @@ export class ProviderManager {
   private configManager = ConfigManager.getInstance();
 
   private metadata: Record<ProviderId, ProviderMeta> = {
-    gemini: {
-      id: 'gemini',
-      name: 'Google Gemini',
-      flag: '🇺🇸',
-      tagline: 'Fast, high-quality free tier from Google AI Studio',
-      apiKeyHelpUrl: 'https://aistudio.google.com/app/apikey',
-      requiresApiKey: true,
-      defaultModel: 'gemini-2.0-flash',
-      models: [
-        {
-          id: 'gemini-2.0-flash',
-          name: 'Gemini 2.0 Flash (Recommended)',
-          provider: 'gemini',
-          description: 'Next-gen multimodal model with blazing speed & 1M context',
-          freeTierNote: '15 RPM / 1M TPM free forever on Google AI Studio',
-          isDefault: true,
-          contextWindow: 1048576
-        },
-        {
-          id: 'gemini-1.5-flash',
-          name: 'Gemini 1.5 Flash',
-          provider: 'gemini',
-          description: 'Lightweight, ultra-fast coding & chat assistant',
-          freeTierNote: '15 RPM / 1M TPM free tier',
-          contextWindow: 1048576
-        },
-        {
-          id: 'gemini-1.5-pro',
-          name: 'Gemini 1.5 Pro',
-          provider: 'gemini',
-          description: 'High-reasoning model for complex debugging and architectural tasks',
-          freeTierNote: '2 RPM / 32k TPM free tier',
-          contextWindow: 2097152
-        }
-      ]
-    },
     siliconflow: {
       id: 'siliconflow',
       name: 'SiliconFlow (硅基流动)',
@@ -179,6 +144,50 @@ export class ProviderManager {
         }
       ]
     },
+    kimi: {
+      id: 'kimi',
+      name: 'Moonshot Kimi (月之暗面)',
+      flag: '🇨🇳',
+      tagline: 'Moonshot AI Kimi with generous free starter token quota & long context',
+      apiKeyHelpUrl: 'https://platform.moonshot.cn/console/api-keys',
+      requiresApiKey: true,
+      defaultModel: 'moonshot-v1-8k',
+      models: [
+        {
+          id: 'moonshot-v1-8k',
+          name: 'Kimi 8K (moonshot-v1-8k)',
+          provider: 'kimi',
+          description: 'Moonshot Kimi model with 8k context window, high speed & coding reasoning',
+          freeTierNote: 'Free starter quota on Moonshot platform',
+          isDefault: true,
+          contextWindow: 8192
+        },
+        {
+          id: 'moonshot-v1-32k',
+          name: 'Kimi 32K (moonshot-v1-32k)',
+          provider: 'kimi',
+          description: 'Expanded 32k context for analyzing entire code files and architectures',
+          freeTierNote: 'Free starter quota on Moonshot platform',
+          contextWindow: 32768
+        },
+        {
+          id: 'moonshot-v1-128k',
+          name: 'Kimi 128K (moonshot-v1-128k)',
+          provider: 'kimi',
+          description: 'Ultra-long 128k context for large codebases and complex multi-file reasoning',
+          freeTierNote: 'Free starter quota on Moonshot platform',
+          contextWindow: 131072
+        },
+        {
+          id: 'moonshot-v1-auto',
+          name: 'Kimi Auto (moonshot-v1-auto)',
+          provider: 'kimi',
+          description: 'Automatically balances context length based on conversation tokens',
+          freeTierNote: 'Free starter quota on Moonshot platform',
+          contextWindow: 131072
+        }
+      ]
+    },
     groq: {
       id: 'groq',
       name: 'Groq Cloud',
@@ -237,24 +246,135 @@ export class ProviderManager {
           isDefault: true
         },
         {
+          id: 'deepseek/deepseek-v4-flash-0731:free',
+          name: 'DeepSeek V4 Flash 0731 (Free)',
+          provider: 'openrouter',
+          description: 'Blazing fast DeepSeek V4 Flash with 1M context (20 req/min)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 1048576,
+          supportsFim: true
+        },
+        {
+          id: 'cohere/north-mini-code:free',
+          name: 'Cohere North Mini Code (Free)',
+          provider: 'openrouter',
+          description: 'Cohere specialized code generation and refactoring model (256k context)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144,
+          supportsFim: true
+        },
+        {
+          id: 'poolside/laguna-s-2.1:free',
+          name: 'Poolside Laguna S 2.1 (Free)',
+          provider: 'openrouter',
+          description: 'Software engineering agent model from Poolside (262k context)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144,
+          supportsFim: true
+        },
+        {
+          id: 'poolside/laguna-xs-2.1:free',
+          name: 'Poolside Laguna XS 2.1 (Free)',
+          provider: 'openrouter',
+          description: 'Ultra-fast compact coding model for low-latency completions',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144,
+          supportsFim: true
+        },
+        {
+          id: 'qwen/qwen3.8-27b:free',
+          name: 'Qwen 3.8 27B (Free)',
+          provider: 'openrouter',
+          description: 'Alibaba code & reasoning powerhouse (262k context, 20 req/min)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144,
+          supportsFim: true
+        },
+        {
           id: 'qwen/qwen-2.5-coder-32b-instruct:free',
           name: 'Qwen 2.5 Coder 32B (Free)',
           provider: 'openrouter',
           description: 'Code-optimized model from Alibaba',
-          freeTierNote: '100% Free on OpenRouter (:free tag)'
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          supportsFim: true
+        },
+        {
+          id: 'nvidia/nemotron-3.5-lightning:free',
+          name: 'NVIDIA Nemotron 3.5 Lightning (Free)',
+          provider: 'openrouter',
+          description: 'NVIDIA ultra-fast 1M context model (40 req/min)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 1048576
+        },
+        {
+          id: 'nvidia/nemotron-3-ultra-550b-a55b:free',
+          name: 'NVIDIA Nemotron 3 Ultra 550B (Free)',
+          provider: 'openrouter',
+          description: 'Massive 550B MoE reasoning model with 1M context (40 req/min)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 1048576
+        },
+        {
+          id: 'nvidia/nemotron-3-super-120b-a12b:free',
+          name: 'NVIDIA Nemotron 3 Super 120B (Free)',
+          provider: 'openrouter',
+          description: '120B MoE high-reasoning model (262k context, 40 req/min)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144
+        },
+        {
+          id: 'z-ai/glm-5.2:free',
+          name: 'Z.ai GLM 5.2 (Free)',
+          provider: 'openrouter',
+          description: 'Latest Zhipu GLM 5.2 architecture for reasoning & instructions',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 32768
+        },
+        {
+          id: 'openrouter/free',
+          name: 'OpenRouter Free Models Router',
+          provider: 'openrouter',
+          description: 'Auto-routes to the highest-availability free model on OpenRouter',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 204800
+        },
+        {
+          id: 'google/gemma-4-31b-it:free',
+          name: 'Google Gemma 4 31B (Free)',
+          provider: 'openrouter',
+          description: 'Google open-weights instruction model (262k context)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144
+        },
+        {
+          id: 'google/gemma-4-26b-a4b-it:free',
+          name: 'Google Gemma 4 26B A4B (Free)',
+          provider: 'openrouter',
+          description: 'Google efficient open-weights model (262k context)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 262144
+        },
+        {
+          id: 'thinkingmachines/inkling:free',
+          name: 'Thinking Machines Inkling (Free)',
+          provider: 'openrouter',
+          description: '1M context reasoning and multimodal model',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 1048576
+        },
+        {
+          id: 'liquid/lfm-2.5-2.6b:free',
+          name: 'LiquidAI LFM 2.5 2.6B (Free)',
+          provider: 'openrouter',
+          description: 'Liquid neural network for fast, low-latency completions (10 req/min)',
+          freeTierNote: '100% Free on OpenRouter (:free tag)',
+          contextWindow: 65536
         },
         {
           id: 'meta-llama/llama-3.3-70b-instruct:free',
           name: 'Llama 3.3 70B Instruct (Free)',
           provider: 'openrouter',
           description: 'Meta latest 70B model',
-          freeTierNote: '100% Free on OpenRouter (:free tag)'
-        },
-        {
-          id: 'google/gemini-2.0-flash-exp:free',
-          name: 'Gemini 2.0 Flash Exp (Free)',
-          provider: 'openrouter',
-          description: 'Google Gemini 2.0 via OpenRouter free tier',
           freeTierNote: '100% Free on OpenRouter (:free tag)'
         },
         {
@@ -362,6 +482,49 @@ export class ProviderManager {
         }
       ]
     },
+    pollinations: {
+      id: 'pollinations',
+      name: 'Pollinations AI',
+      flag: '🌸',
+      tagline: '100% Free & Unlimited Cloud Inference (No API Key Required)',
+      apiKeyHelpUrl: 'https://pollinations.ai/',
+      requiresApiKey: false,
+      defaultModel: 'openai-fast',
+      models: [
+        {
+          id: 'openai-fast',
+          name: 'GPT-OSS 20B Reasoning (Pollinations Free)',
+          provider: 'pollinations',
+          description: 'High-speed reasoning model running anonymously on Pollinations AI cloud',
+          freeTierNote: '100% Free & Unlimited (No key needed)',
+          isDefault: true,
+          supportsFim: true
+        },
+        {
+          id: 'openai',
+          name: 'GPT-OSS (Pollinations Free)',
+          provider: 'pollinations',
+          description: 'Versatile general-purpose model hosted with zero auth on Pollinations',
+          freeTierNote: '100% Free & Unlimited (No key needed)',
+          supportsFim: true
+        },
+        {
+          id: 'mistral',
+          name: 'Mistral (Pollinations Cloud)',
+          provider: 'pollinations',
+          description: 'Fast open-weights coding and reasoning model via Pollinations',
+          freeTierNote: 'Free tier / Optional enter.pollinations.ai key',
+          supportsFim: true
+        },
+        {
+          id: 'gpt-4o',
+          name: 'GPT-4o (Pollinations Cloud)',
+          provider: 'pollinations',
+          description: 'Flagship multimodal reasoning and code generation model',
+          freeTierNote: 'Pollinations cloud tier'
+        }
+      ]
+    },
     custom: {
       id: 'custom',
       name: 'Custom OpenAI-Compatible',
@@ -395,15 +558,16 @@ export class ProviderManager {
   }
 
   private registerProviders(): void {
-    this.providers.set('gemini', new GeminiProvider());
     this.providers.set('siliconflow', new SiliconFlowProvider());
     this.providers.set('zhipu', new ZhipuProvider());
     this.providers.set('deepseek', new DeepSeekProvider());
     this.providers.set('dashscope', new DashscopeProvider());
+    this.providers.set('kimi', new KimiProvider());
     this.providers.set('groq', new GroqProvider());
     this.providers.set('cerebras', new CerebrasProvider());
     this.providers.set('openrouter', new OpenRouterProvider());
     this.providers.set('mistral', new MistralProvider());
+    this.providers.set('pollinations', new PollinationsProvider());
     this.providers.set('ollama', new OllamaProvider());
     this.providers.set('custom', new CustomOpenAIProvider());
   }
@@ -412,7 +576,7 @@ export class ProviderManager {
     const activeId = id || this.configManager.getConfig().provider;
     const provider = this.providers.get(activeId);
     if (!provider) {
-      return this.providers.get('gemini')!;
+      return this.providers.get('groq')!;
     }
     return provider;
   }
@@ -422,7 +586,7 @@ export class ProviderManager {
   }
 
   public getProviderMeta(id: ProviderId): ProviderMeta {
-    return this.metadata[id] || this.metadata.gemini;
+    return this.metadata[id] || this.metadata.groq;
   }
 
   public getAllModels(): ModelInfo[] {
@@ -431,5 +595,19 @@ export class ProviderManager {
       list.push(...meta.models);
     }
     return list;
+  }
+
+  public getFallbackProvider(excludeId?: ProviderId): { provider: ILLMProvider; meta: ProviderMeta } | undefined {
+    const candidates: ProviderId[] = ['pollinations', 'openrouter', 'groq', 'siliconflow'];
+    for (const id of candidates) {
+      if (id !== excludeId) {
+        const p = this.providers.get(id);
+        const meta = this.metadata[id];
+        if (p && meta) {
+          return { provider: p, meta };
+        }
+      }
+    }
+    return undefined;
   }
 }

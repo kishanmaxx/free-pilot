@@ -100,9 +100,11 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
     }
 
     try {
-      const provider = this.providerManager.getProvider();
+      const targetProviderId = config.completionProvider || config.provider;
+      const provider = this.providerManager.getProvider(targetProviderId);
+      const meta = this.providerManager.getProviderMeta(targetProviderId);
       const hasKey = await provider.hasValidApiKey();
-      if (!hasKey && provider.id !== 'ollama') {
+      if (meta.requiresApiKey && !hasKey) {
         // Silent fail for inline completion if API key not set, to avoid annoying popup on every keystroke
         return undefined;
       }

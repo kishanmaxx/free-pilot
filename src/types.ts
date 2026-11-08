@@ -1,13 +1,14 @@
 export type ProviderId =
-  | 'gemini'
   | 'groq'
   | 'siliconflow'
   | 'zhipu'
   | 'deepseek'
   | 'dashscope'
+  | 'kimi'
   | 'openrouter'
   | 'mistral'
   | 'cerebras'
+  | 'pollinations'
   | 'ollama'
   | 'custom';
 
@@ -80,8 +81,13 @@ export interface ILLMProvider {
 export interface FreePilotConfig {
   provider: ProviderId;
   model: string;
+  completionProvider?: ProviderId;
+  completionModel?: string;
   enableInlineCompletions: boolean;
   inlineCompletionDelayMs: number;
+  completionTimeoutMs: number;
+  chatTimeoutMs: number;
+  autoFailover: boolean;
   maxCompletionTokens: number;
   maxChatTokens: number;
   temperature: number;

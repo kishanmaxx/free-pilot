@@ -1,7 +1,7 @@
 {
   "name": "free-pilot",
   "displayName": "FreePilot - Free AI Copilot & Chat",
-  "description": "100% Free AI Copilot & Chat Assistant powered by Gemini, DeepSeek, SiliconFlow, Zhipu GLM, Qwen, Groq, Ollama, OpenRouter & Mistral.",
+  "description": "100% Free AI Copilot & Chat Assistant powered by Groq, DeepSeek, SiliconFlow, Zhipu GLM, Qwen, Moonshot Kimi, Ollama, OpenRouter & Mistral.",
   "version": "0.1.0",
   "publisher": "freepilot",
   "license": "MIT",
@@ -24,11 +24,12 @@
     "ai",
     "free",
     "deepseek",
-    "gemini",
     "qwen",
     "siliconflow",
     "zhipu",
+    "kimi",
     "groq",
+    "pollinations",
     "ollama",
     "code-completion",
     "chat"
@@ -209,30 +210,32 @@
       "properties": {
         "freepilot.provider": {
           "type": "string",
-          "default": "gemini",
+          "default": "groq",
           "enum": [
-            "gemini",
             "groq",
             "siliconflow",
             "zhipu",
             "deepseek",
             "dashscope",
+            "kimi",
             "openrouter",
             "mistral",
             "cerebras",
+            "pollinations",
             "ollama",
             "custom"
           ],
           "enumDescriptions": [
-            "Google Gemini (Free tier: Gemini 2.0 Flash / 1.5 Flash)",
             "Groq Cloud (Ultra-fast free tier: Llama 3.3 70B / Mixtral)",
             "SiliconFlow 硅基流动 (Free tier: DeepSeek R1/V3, Qwen 2.5 Coder, GLM-4)",
             "Zhipu AI 智谱清言 (Free GLM-4-Flash forever)",
             "DeepSeek Official API (DeepSeek V3 / R1)",
             "Alibaba DashScope 通义千问 (Qwen 2.5 Coder / Turbo / Plus)",
+            "Moonshot Kimi 月之暗面 (Free starter quota: moonshot-v1-8k / 32k / 128k / auto)",
             "OpenRouter (All :free models - DeepSeek R1, Qwen Coder, Llama 3.3)",
             "Mistral AI (Codestral & Mistral Small free tier)",
             "Cerebras Cloud (Blazing fast free inference)",
+            "Pollinations AI (100% Free & Unlimited in the Cloud - No API key needed)",
             "Local Ollama (100% free, private & offline at localhost:11434)",
             "Custom OpenAI-Compatible API (LM Studio, LocalAI, vLLM, FastChat)"
           ],
@@ -240,8 +243,37 @@
         },
         "freepilot.model": {
           "type": "string",
-          "default": "gemini-2.0-flash",
+          "default": "llama-3.3-70b-versatile",
           "description": "Active model identifier for the selected provider."
+        },
+        "freepilot.completionProvider": {
+          "type": "string",
+          "default": "",
+          "description": "Optional provider override specifically for inline completions (e.g. groq, siliconflow). Leave empty to use the active provider."
+        },
+        "freepilot.completionModel": {
+          "type": "string",
+          "default": "",
+          "description": "Optional model override specifically for inline completions (e.g. fast FIM models like deepseek-ai/DeepSeek-V3). Leave empty to use active model."
+        },
+        "freepilot.completionTimeoutMs": {
+          "type": "integer",
+          "default": 8000,
+          "minimum": 2000,
+          "maximum": 30000,
+          "description": "Timeout in milliseconds for inline code completion requests."
+        },
+        "freepilot.chatTimeoutMs": {
+          "type": "integer",
+          "default": 50000,
+          "minimum": 10000,
+          "maximum": 120000,
+          "description": "Timeout in milliseconds for chat assistant requests."
+        },
+        "freepilot.autoFailover": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically failover to a backup free provider (e.g. Pollinations AI or OpenRouter) if the primary provider hits rate limits or outages."
         },
         "freepilot.enableInlineCompletions": {
           "type": "boolean",

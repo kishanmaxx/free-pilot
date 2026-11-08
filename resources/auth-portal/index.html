@@ -131,7 +131,7 @@
       <div class="logo">⚡</div>
       <h1>FreePilot 1-Click Connect</h1>
       <p>Connect your free AI model directly to VS Code without manual configuration.</p>
-      <div class="provider-tag" id="providerTag">Provider: Google Gemini</div>
+      <div class="provider-tag" id="providerTag">Provider: Groq Cloud</div>
     </div>
 
     <div class="form-group">
@@ -149,22 +149,23 @@
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const provider = params.get('provider') || 'gemini';
+    const provider = params.get('provider') || 'groq';
     const callbackUri = params.get('callback') || 'vscode://freepilot.free-pilot/auth-callback';
 
     const providerLinks = {
-      gemini: { name: 'Google Gemini', url: 'https://aistudio.google.com/app/apikey' },
       siliconflow: { name: 'SiliconFlow (硅基流动)', url: 'https://cloud.siliconflow.cn/account/ak' },
       zhipu: { name: 'Zhipu AI (智谱清言)', url: 'https://open.bigmodel.cn/usercenter/apikeys' },
       dashscope: { name: 'Alibaba DashScope (通义千问)', url: 'https://dashscope.console.aliyun.com/apiKey' },
+      kimi: { name: 'Moonshot Kimi (月之暗面)', url: 'https://platform.moonshot.cn/console/api-keys' },
       deepseek: { name: 'DeepSeek Official', url: 'https://platform.deepseek.com/api_keys' },
       groq: { name: 'Groq Cloud', url: 'https://console.groq.com/keys' },
       cerebras: { name: 'Cerebras Cloud', url: 'https://cloud.cerebras.ai/' },
+      pollinations: { name: 'Pollinations AI (No Key Needed)', url: 'https://pollinations.ai/' },
       openrouter: { name: 'OpenRouter Free', url: 'https://openrouter.ai/keys' },
       mistral: { name: 'Mistral AI', url: 'https://console.mistral.ai/api-keys/' }
     };
 
-    const info = providerLinks[provider] || providerLinks.gemini;
+    const info = providerLinks[provider] || providerLinks.groq;
     document.getElementById('providerTag').textContent = `Provider: ${info.name}`;
     document.getElementById('getKeyBtn').href = info.url;
     document.getElementById('getKeyBtn').textContent = `🔑 Get Free ${info.name} Key`;

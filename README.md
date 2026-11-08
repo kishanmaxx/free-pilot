@@ -37,14 +37,15 @@ FreePilot connects to top-tier free AI engines worldwide:
 
 | Provider | Country / Origin | Highlight Models | Free Tier Details | Free Key Link |
 | :--- | :---: | :--- | :--- | :--- |
-| **Google Gemini** | 🇺🇸 USA | `gemini-2.0-flash`<br>`gemini-1.5-flash`<br>`gemini-1.5-pro` | 15 RPM / 1M TPM free forever | [Google AI Studio](https://aistudio.google.com/app/apikey) |
 | **SiliconFlow (硅基流动)** | 🇨🇳 China | `deepseek-ai/DeepSeek-V3`<br>`deepseek-ai/DeepSeek-R1`<br>`Qwen/Qwen2.5-Coder-32B`<br>`THUDM/glm-4-9b-chat` | Generous free balance & permanent free models | [SiliconCloud](https://cloud.siliconflow.cn/account/ak) |
 | **Zhipu AI (智谱清言)** | 🇨🇳 China | `glm-4-flash` | **100% Free Forever** on BigModel platform | [Zhipu BigModel](https://open.bigmodel.cn/usercenter/apikeys) |
 | **Alibaba DashScope (通义千问)** | 🇨🇳 China | `qwen2.5-coder-32b-instruct`<br>`qwen-plus`<br>`qwen-turbo` | Free token quota on DashScope | [DashScope Console](https://dashscope.console.aliyun.com/apiKey) |
+| **Moonshot Kimi (月之暗面)** | 🇨🇳 China | `moonshot-v1-8k`<br>`moonshot-v1-32k`<br>`moonshot-v1-128k`<br>`moonshot-v1-auto` | Free starter quota on Moonshot Platform | [Moonshot Platform](https://platform.moonshot.cn/console/api-keys) |
 | **DeepSeek Official** | 🇨🇳 China | `deepseek-chat` (V3)<br>`deepseek-reasoner` (R1) | Free starter credits on platform | [DeepSeek Platform](https://platform.deepseek.com/api_keys) |
 | **Groq Cloud** | 🇺🇸 USA | `llama-3.3-70b-versatile`<br>`deepseek-r1-distill-llama-70b`<br>`llama-3.1-8b-instant`<br>`mixtral-8x7b-32768` | Ultra-fast free tier (500+ tok/s) | [Groq Console](https://console.groq.com/keys) |
 | **Cerebras Cloud** | 🇺🇸 USA | `llama3.3-70b`<br>`llama3.1-8b` | Blazing fast (1800+ tok/s) free tier | [Cerebras Cloud](https://cloud.cerebras.ai/) |
-| **OpenRouter** | 🌐 Global | `deepseek/deepseek-r1:free`<br>`qwen/qwen-2.5-coder-32b-instruct:free`<br>`meta-llama/llama-3.3-70b-instruct:free`<br>`google/gemini-2.0-flash-exp:free` | All `:free` models on OpenRouter | [OpenRouter Keys](https://openrouter.ai/keys) |
+| **Pollinations AI** | 🌸 Global | `openai-fast`<br>`openai`<br>`mistral`<br>`gpt-4o` | **100% Free & Unlimited** (No key required) | [Pollinations.ai](https://pollinations.ai/) |
+| **OpenRouter** | 🌐 Global | `deepseek-v4-flash-0731:free`<br>`cohere/north-mini-code:free`<br>`poolside/laguna-s-2.1:free`<br>`qwen/qwen3.8-27b:free`<br>`nemotron-3.5-lightning:free`<br>`deepseek-r1:free` | All `:free` models on OpenRouter | [OpenRouter Keys](https://openrouter.ai/keys) |
 | **Mistral AI** | 🇫🇷 France | `codestral-latest`<br>`mistral-small-latest` | Free developer tier on Mistral Console | [Mistral Console](https://console.mistral.ai/api-keys/) |
 | **Local Ollama** | 💻 Offline | `qwen2.5-coder`<br>`deepseek-coder-v2`<br>`codellama`<br>`llama3.2` | **100% Free, Private & Offline** (No key needed) | [Ollama.ai](https://ollama.ai/) |
 | **Custom Endpoint** | 🛠️ Custom | LM Studio, LocalAI, vLLM, FastChat | Connect to any local or self-hosted server | Configurable URL |
@@ -74,8 +75,8 @@ Access settings via `Settings` > Search `FreePilot` or edit `settings.json`:
 
 | Setting | Type | Default | Description |
 | :--- | :---: | :---: | :--- |
-| `freepilot.provider` | `enum` | `"gemini"` | Active provider (`gemini`, `siliconflow`, `zhipu`, `dashscope`, `deepseek`, `groq`, `cerebras`, `openrouter`, `mistral`, `ollama`, `custom`) |
-| `freepilot.model` | `string` | `"gemini-2.0-flash"` | Active model identifier |
+| `freepilot.provider` | `enum` | `"groq"` | Active provider (`groq`, `siliconflow`, `zhipu`, `dashscope`, `kimi`, `deepseek`, `cerebras`, `pollinations`, `openrouter`, `mistral`, `ollama`, `custom`) |
+| `freepilot.model` | `string` | `"llama-3.3-70b-versatile"` | Active model identifier |
 | `freepilot.enableInlineCompletions` | `boolean` | `true` | Enable real-time ghost text inline code completions |
 | `freepilot.inlineCompletionDelayMs` | `number` | `350` | Debounce delay before fetching inline suggestions |
 | `freepilot.ollamaEndpoint` | `string` | `"http://localhost:11434"` | Endpoint URL for local Ollama |

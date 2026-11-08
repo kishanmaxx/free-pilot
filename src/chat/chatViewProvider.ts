@@ -347,13 +347,31 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
-   * Trim conversation history to prevent token overflow.
-   * Keeps only the last MAX_HISTORY_MESSAGES messages.
+   * Token-aware sliding window truncation.
+   * Keeps conversation within token budget (estimated ~3.8 chars/token)
+   * while preserving system instructions and newest user turns.
    */
   private trimConversationHistory(): void {
-    const max = ChatViewProvider.MAX_HISTORY_MESSAGES;
-    if (this.conversationHistory.length > max) {
-      this.conversationHistory = this.conversationHistory.slice(-max);
+    const maxMessages = ChatViewProvider.MAX_HISTORY_MESSAGES;
+    if (this.conversationHistory.length > maxMessages) {
+      this.conversationHistory = this.conversationHistory.slice(-maxMessages);
+    }
+
+    // Dynamic token budgeting: maximum 14,000 estimated tokens for history
+    const MAX_HISTORY_TOKENS = 14000;
+    let totalChars = this.conversationHistory.reduce((acc, m) => acc + m.content.length, 0);
+    let estimatedTokens = Math.ceil(totalChars / 3.8);
+
+    while (estimatedTokens > MAX_HISTORY_TOKENS && this.conversationHistory.length > 2) {
+      // Remove oldest user/assistant pair from the beginning
+      const indexToRemove = this.conversationHistory.findIndex(m => m.role !== 'system');
+      if (indexToRemove !== -1 && indexToRemove < this.conversationHistory.length - 1) {
+        this.conversationHistory.splice(indexToRemove, 1);
+      } else {
+        break;
+      }
+      totalChars = this.conversationHistory.reduce((acc, m) => acc + m.content.length, 0);
+      estimatedTokens = Math.ceil(totalChars / 3.8);
     }
   }
 

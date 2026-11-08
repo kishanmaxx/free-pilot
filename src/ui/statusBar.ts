@@ -46,16 +46,19 @@ export class StatusBarManager {
     const meta = this.providerManager.getProviderMeta(config.provider);
     const hasKey = await this.providerManager.getProvider().hasValidApiKey();
 
-    const keyStatus = meta.requiresApiKey ? (hasKey ? '✓' : '⚠️ Key missing') : '⚡ Offline/Local';
-    const inlineStatus = config.enableInlineCompletions ? '✨' : '⚪';
+    const keyStatus = meta.requiresApiKey ? (hasKey ? '✓ Key configured' : '⚠️ Key missing') : '⚡ Free & Keyless';
+    const completionInfo = config.completionModel
+      ? `\n- **Inline FIM Model**: \`${config.completionModel}\` (${config.completionProvider || config.provider})`
+      : '';
 
     this.statusBarItem.text = `$(hubot) FreePilot: ${meta.flag} ${config.model}`;
     this.statusBarItem.tooltip = new vscode.MarkdownString(
       `**FreePilot AI Copilot**\n\n` +
-      `- **Provider**: ${meta.name} (${meta.flag})\n` +
-      `- **Model**: \`${config.model}\`\n` +
-      `- **Status**: ${keyStatus}\n` +
-      `- **Inline Completions**: ${config.enableInlineCompletions ? 'Active' : 'Disabled'}\n\n` +
+      `- **Active Provider**: ${meta.name} (${meta.flag})\n` +
+      `- **Chat Model**: \`${config.model}\`${completionInfo}\n` +
+      `- **Key Status**: ${keyStatus}\n` +
+      `- **Inline Completions**: ${config.enableInlineCompletions ? '✨ Active' : '⚪ Disabled'}\n` +
+      `- **Auto Failover**: ${config.autoFailover ? '🛡️ Enabled' : 'Disabled'}\n\n` +
       `*Click to switch provider or model*`
     );
   }
@@ -83,7 +86,7 @@ export class StatusBarManager {
 
     const selected = await vscode.window.showQuickPick(items, {
       title: 'FreePilot: Select AI Provider & Free Model',
-      placeHolder: 'Choose a free model (Gemini, DeepSeek, Qwen, SiliconFlow, Groq, Ollama...)'
+      placeHolder: 'Choose a free model (Groq, DeepSeek, Qwen, Pollinations, SiliconFlow, Ollama...)'
     });
 
     if (selected) {

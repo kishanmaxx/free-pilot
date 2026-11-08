@@ -1,5 +1,6 @@
 import { ChatRequest, CompletionRequest, ProviderId, StreamChunkHandler } from '../types';
 import { PromptTemplates } from '../utils/promptTemplates';
+import { NetworkUtils } from '../utils/networkUtils';
 import { BaseProvider } from './baseProvider';
 
 export interface OpenAICompatibleOptions {
@@ -38,12 +39,12 @@ export class OpenAICompatibleProvider extends BaseProvider {
 
   public async completeCode(request: CompletionRequest, signal?: AbortSignal): Promise<string> {
     const apiKey = await this.getApiKey();
-    if (!apiKey && this.id !== 'ollama') {
+    if (!apiKey && this.id !== 'ollama' && this.id !== 'pollinations') {
       throw new Error(`${this.name} API key is not configured. Run "FreePilot: Set Provider API Key"`);
     }
 
     const config = this.configManager.getConfig();
-    const model = config.model || this.defaultModel;
+    const model = config.completionModel || config.model || this.defaultModel;
     const url = `${this.getBaseUrl().replace(/\/+$/, '')}/chat/completions`;
 
     const prompt = PromptTemplates.buildFimPrompt(
@@ -74,12 +75,19 @@ export class OpenAICompatibleProvider extends BaseProvider {
       stop: request.stopTokens ?? ['\n\n', '```']
     };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal
-    });
+    const response = await NetworkUtils.fetchWithRetryAndTimeout(
+      url,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      },
+      {
+        timeoutMs: config.completionTimeoutMs || 8000,
+        maxRetries: 2,
+        signal
+      }
+    );
 
     if (!response.ok) {
       await this.parseHttpError(response, this.name, 'completion');
@@ -96,7 +104,7 @@ export class OpenAICompatibleProvider extends BaseProvider {
     signal?: AbortSignal
   ): Promise<string> {
     const apiKey = await this.getApiKey();
-    if (!apiKey && this.id !== 'ollama') {
+    if (!apiKey && this.id !== 'ollama' && this.id !== 'pollinations') {
       throw new Error(`${this.name} API key is not configured. Run "FreePilot: Set Provider API Key"`);
     }
 
@@ -130,12 +138,19 @@ export class OpenAICompatibleProvider extends BaseProvider {
       stream
     };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal
-    });
+    const response = await NetworkUtils.fetchWithRetryAndTimeout(
+      url,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      },
+      {
+        timeoutMs: config.chatTimeoutMs || 50000,
+        maxRetries: 2,
+        signal
+      }
+    );
 
     if (!response.ok) {
       await this.parseHttpError(response, this.name, 'chat');
@@ -157,7 +172,7 @@ export class OpenAICompatibleProvider extends BaseProvider {
   public async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
       const apiKey = await this.getApiKey();
-      if (!apiKey && this.id !== 'ollama') {
+      if (!apiKey && this.id !== 'ollama' && this.id !== 'pollinations') {
         return { success: false, message: 'API key is missing.' };
       }
       const testReq: ChatRequest = {

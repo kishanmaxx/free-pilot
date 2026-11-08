@@ -141,11 +141,12 @@
           <span>⚡ FreePilot AI Assistant</span>
         </div>
         <p class="welcome-subtitle">
-          100% Free AI Copilot powered by Google Gemini, DeepSeek, SiliconFlow, Zhipu GLM, Qwen, Groq, Ollama & OpenRouter.
+          100% Free AI Copilot powered by DeepSeek, Moonshot Kimi, SiliconFlow, Zhipu GLM, Qwen, Groq, Ollama & OpenRouter.
         </p>
         <div class="free-pills">
-          <span class="free-pill">Gemini 2.0 Flash</span>
+          <span class="free-pill">Groq Llama 3.3</span>
           <span class="free-pill">DeepSeek R1/V3</span>
+          <span class="free-pill">Kimi Moonshot</span>
           <span class="free-pill">GLM-4-Flash</span>
           <span class="free-pill">Qwen 2.5 Coder</span>
           <span class="free-pill">Llama 3.3 70B</span>
@@ -280,8 +281,27 @@
   function renderMarkdown(md) {
     if (!md) return '';
 
+    // Handle DeepSeek R1 / Reasoning thinking blocks
+    let processed = md.replace(/<think>([\s\S]*?)<\/think>/gi, (match, thoughts) => {
+      const cleanThoughts = thoughts.trim();
+      if (!cleanThoughts) return '';
+      return `<details class="thinking-container">
+        <summary class="thinking-summary"><span class="thinking-icon">💭</span> Thought Process</summary>
+        <div class="thinking-content">${escapeHtml(cleanThoughts).replace(/\n/g, '<br/>')}</div>
+      </details>`;
+    });
+
+    // Handle streaming in-progress <think> that hasn't closed yet
+    processed = processed.replace(/<think>([\s\S]*)$/gi, (match, thoughts) => {
+      const cleanThoughts = thoughts.trim();
+      return `<details class="thinking-container" open>
+        <summary class="thinking-summary"><span class="thinking-icon">💭</span> Thinking...</summary>
+        <div class="thinking-content">${escapeHtml(cleanThoughts).replace(/\n/g, '<br/>')}</div>
+      </details>`;
+    });
+
     // First handle triple-backtick code blocks
-    let processed = md.replace(/```([\w-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    processed = processed.replace(/```([\w-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
       const escapedCode = escapeHtml(code.trimEnd());
       const displayLang = lang || 'code';
       return `<div class="code-block-wrapper">
